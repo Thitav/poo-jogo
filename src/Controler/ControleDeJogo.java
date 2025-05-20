@@ -3,8 +3,9 @@ package Controler;
 import Modelo.Chaser;
 import Modelo.Personagem;
 import Modelo.Hero;
-import auxiliar.Posicao;
+import Auxiliar.Posicao;
 import java.util.ArrayList;
+import Modelo.Item;
 
 public class ControleDeJogo {
     
@@ -21,8 +22,12 @@ public class ControleDeJogo {
             pIesimoPersonagem = umaFase.get(i);
             if (hero.getPosicao().igual(pIesimoPersonagem.getPosicao())) {
                 if (pIesimoPersonagem.isbTransponivel()) /*TO-DO: verificar se o personagem eh mortal antes de retirar*/ {
-                    if (pIesimoPersonagem.isbMortal())
-                    umaFase.remove(pIesimoPersonagem);
+                    if (pIesimoPersonagem.isbMortal()) {
+                        umaFase.remove(pIesimoPersonagem);
+                    }
+                }
+                if (pIesimoPersonagem.isbColisao()) {
+                    pIesimoPersonagem.colisao(hero);
                 }
             }
         }

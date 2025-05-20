@@ -3,13 +3,14 @@ package Modelo;
 import Auxiliar.Consts;
 import Auxiliar.Desenho;
 import Controler.Tela;
-import auxiliar.Posicao;
+import Auxiliar.Posicao;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -20,6 +21,11 @@ public abstract class Personagem implements Serializable {
     protected Posicao pPosicao;
     protected boolean bTransponivel; /*Pode passar por cima?*/
     protected boolean bMortal;       /*Se encostar, morre?*/
+    protected boolean bColisao;      /*Item processa colisao?*/
+
+    public boolean isbColisao() {
+        return bColisao;
+    }
 
     public boolean isbMortal() {
         return bMortal;
@@ -30,6 +36,7 @@ public abstract class Personagem implements Serializable {
         this.pPosicao = new Posicao(1, 1);
         this.bTransponivel = true;
         this.bMortal = false;
+        this.bColisao = false;
         try {
             iImage = new ImageIcon(new java.io.File(".").getCanonicalPath() + Consts.PATH + sNomeImagePNG);
             Image img = iImage.getImage();
@@ -79,4 +86,6 @@ public abstract class Personagem implements Serializable {
     public boolean moveLeft() {
         return this.pPosicao.moveLeft();
     }
+
+    public void colisao(Personagem p) {}
 }

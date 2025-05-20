@@ -2,27 +2,40 @@ package Modelo;
 
 import Auxiliar.Consts;
 import Auxiliar.Desenho;
+import Auxiliar.Posicao;
 import Controler.ControleDeJogo;
 import Controler.Tela;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class Hero extends Personagem implements Serializable{
-    public Hero(String sNomeImagePNG) {
+    private ArrayList<Item> inventario;
+
+    public Hero(String sNomeImagePNG)
+    {
         super(sNomeImagePNG);
+        this.inventario = new ArrayList<>();
+    }
+
+    public void coletar(Item item) {
+        this.inventario.add(item);
+    }
+
+    public boolean temItem(String id) {
+        return this.inventario.stream().anyMatch(i -> i.getId().equals(id));
     }
 
     public void voltaAUltimaPosicao(){
         this.pPosicao.volta();
     }
     
-    
-    public boolean setPosicao(int linha, int coluna){
+    public boolean setPosicao(int linha, int coluna) {
         if(this.pPosicao.setPosicao(linha, coluna)){
             if (!Desenho.acessoATelaDoJogo().ehPosicaoValida(this.getPosicao())) {
                 this.voltaAUltimaPosicao();

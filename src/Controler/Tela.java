@@ -1,15 +1,9 @@
 package Controler;
 
-import Modelo.Personagem;
-import Modelo.Caveira;
-import Modelo.Hero;
-import Modelo.Chaser;
-import Modelo.BichinhoVaiVemHorizontal;
+import Modelo.*;
 import Auxiliar.Consts;
 import Auxiliar.Desenho;
-import Modelo.BichinhoVaiVemVertical;
-import Modelo.ZigueZague;
-import auxiliar.Posicao;
+import Auxiliar.Posicao;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -81,7 +75,11 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
         Caveira bV = new Caveira("caveira.png");
         bV.setPosicao(9, 1);
         this.addPersonagem(bV);
-        
+
+        Chave c = new Chave("bricks.png");
+        c.setPosicao(5, 5);
+        this.addPersonagem(c);
+
         Chaser chase = new Chaser("chaser.png");
         chase.setPosicao(12, 12);
         this.addPersonagem(chase);        
