@@ -2,18 +2,13 @@ package Modelo;
 
 import Auxiliar.Consts;
 import Auxiliar.Desenho;
-import Controler.Tela;
 import Auxiliar.Posicao;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 public abstract class Personagem implements Serializable {
 
@@ -22,6 +17,8 @@ public abstract class Personagem implements Serializable {
     protected boolean bTransponivel; /*Pode passar por cima?*/
     protected boolean bMortal;       /*Se encostar, morre?*/
     protected boolean bColisao;      /*Item processa colisao?*/
+    protected String sNomeImagePNG;
+
 
     public boolean isbColisao() {
         return bColisao;
@@ -29,6 +26,10 @@ public abstract class Personagem implements Serializable {
 
     public boolean isbMortal() {
         return bMortal;
+    }
+
+    public String getImagem() { // retorna imagem
+        return this.sNomeImagePNG;
     }
 
 
@@ -54,6 +55,25 @@ public abstract class Personagem implements Serializable {
          diretamente sobre a posição do Personagem*/
         return pPosicao;
     }
+
+    public void setImagem(String imagemNova) { // Atribuir imagem
+        this.sNomeImagePNG = imagemNova;
+        try {
+            iImage = new ImageIcon(
+                    new java.io.File(".").getCanonicalPath() + Consts.PATH + sNomeImagePNG
+            );
+
+            Image img = iImage.getImage();
+            BufferedImage bi = new BufferedImage(Consts.CELL_SIDE, Consts.CELL_SIDE, BufferedImage.TYPE_INT_ARGB);
+            Graphics g = bi.createGraphics();
+            g.drawImage(img, 0, 0, Consts.CELL_SIDE, Consts.CELL_SIDE, null);
+            iImage = new ImageIcon(bi);
+
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
 
     public boolean isbTransponivel() {
         return bTransponivel;

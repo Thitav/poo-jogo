@@ -35,6 +35,7 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
     private Graphics g2;
     private int cameraLinha = 0;
     private int cameraColuna = 0;
+    private int iContaIntervalos = 0; // testar se funciona sem isso
 
     public Tela() {
         Desenho.setCenario(this);
@@ -52,6 +53,7 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
 
         /*Cria faseAtual adiciona personagens*/
         hero = new Hero("Kratos_dir.png");
+        hero.setImagem("Kratos_dir.png"); // Sem isso, ao atirar sem andar no jogo, o getImagem() retornará null. Só conseguiria atirar após se mover, pois atribui o kratos_dir ou kratos_esq
         hero.setPosicao(1, 8);
         this.addPersonagem(hero);
         this.atualizaCamera();
@@ -200,9 +202,15 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
             hero.moveDown();
         } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
             hero.moveLeft();
+            hero.setImagem("Kratos_esq.png"); // kratos olhando pra esquerda
         } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
             hero.moveRight();
+            hero.setImagem("Kratos_dir.png"); // kratos olhando pra direita
+        } else if (e.getKeyCode() == KeyEvent.VK_SPACE) { // atira com a barra de espaço
+           hero.atiraFogo();
+
         }
+
         this.atualizaCamera();
         this.setTitle("-> Cell: " + (hero.getPosicao().getColuna()) + ", "
                 + (hero.getPosicao().getLinha()));

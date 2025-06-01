@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 
 public class Hero extends Personagem implements Serializable{
     private ArrayList<Item> inventario;
+    private int ContadorDeIntervalos;
 
     public Hero(String sNomeImagePNG)
     {
@@ -76,6 +77,22 @@ public class Hero extends Personagem implements Serializable{
         if(super.moveLeft())
             return validaPosicao();
         return false;
-    }    
-    
+    }
+
+    public void atiraFogo(){ // Metodo pro heroi atirar fogo
+
+        System.out.println(">> Fogo disparado pelo herói"); //debug
+
+        this.ContadorDeIntervalos++;
+        Fogo tiro;
+
+        if (this.getImagem().contains("dir")) {
+            tiro = new Fogo("Tiro_Lava.png", "dir");
+            tiro.setPosicao(pPosicao.getLinha(), pPosicao.getColuna() + 1);
+        } else {
+            tiro = new Fogo("Tiro_Lava.png", "esq");
+            tiro.setPosicao(pPosicao.getLinha(), pPosicao.getColuna() - 1);
+        }
+        Desenho.acessoATelaDoJogo().addPersonagem(tiro);
+    }
 }
