@@ -1,26 +1,17 @@
 package Modelo;
 
-import Auxiliar.Consts;
 import Auxiliar.Desenho;
-import Auxiliar.Posicao;
-import Controler.ControleDeJogo;
-import Controler.Tela;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.io.IOException;
+import Auxiliar.Direcao;
+
 import java.io.Serializable;
 import java.util.ArrayList;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 public class Hero extends Personagem implements Serializable{
     private ArrayList<Item> inventario;
-    private int ContadorDeIntervalos;
 
     public Hero(String sNomeImagePNG)
     {
-        super(sNomeImagePNG);
+        super(sNomeImagePNG, true);
         this.inventario = new ArrayList<>();
     }
 
@@ -68,29 +59,27 @@ public class Hero extends Personagem implements Serializable{
     }
 
     public boolean moveRight() {
+        this.setDirecao(Direcao.DIREITA);
         if(super.moveRight())
             return validaPosicao();
         return false;
     }
 
     public boolean moveLeft() {
+        this.setDirecao(Direcao.ESQUERDA);
         if(super.moveLeft())
             return validaPosicao();
         return false;
     }
 
     public void atiraFogo(){ // Metodo pro heroi atirar fogo
-
-        System.out.println(">> Fogo disparado pelo herói"); //debug
-
-        this.ContadorDeIntervalos++;
         Fogo tiro;
 
-        if (this.getImagem().contains("dir")) {
-            tiro = new Fogo("Tiro_Lava.png", "dir");
+        if (this.direcao == Direcao.DIREITA) {
+            tiro = new Fogo("Tiro_Lava.png", Direcao.DIREITA);
             tiro.setPosicao(pPosicao.getLinha(), pPosicao.getColuna() + 1);
         } else {
-            tiro = new Fogo("Tiro_Lava.png", "esq");
+            tiro = new Fogo("Tiro_Lava.png", Direcao.ESQUERDA);
             tiro.setPosicao(pPosicao.getLinha(), pPosicao.getColuna() - 1);
         }
         Desenho.acessoATelaDoJogo().addPersonagem(tiro);

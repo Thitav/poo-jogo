@@ -8,7 +8,7 @@ import javax.swing.ImageIcon;
 public class Parede extends Personagem implements Serializable {
 
     public Parede(String sNomeImagePNG) {
-        super(sNomeImagePNG); // exemplo: "nuvem.png"
+        super(sNomeImagePNG, false); // exemplo: "nuvem.png"
         this.bTransponivel = false;
         bMortal = false;
     }

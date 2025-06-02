@@ -19,7 +19,7 @@ public class Chaser extends Personagem implements Serializable {
     private boolean iDirectionH;
 
     public Chaser(String sNomeImagePNG) {
-        super(sNomeImagePNG);
+        super(sNomeImagePNG, false);
         iDirectionV = true;
         iDirectionH = true;
         

@@ -6,7 +6,7 @@ public class Portao extends Personagem implements Serializable {
     protected String chave;
 
     public Portao(String sNomeImagemPng, String chave) {
-        super(sNomeImagemPng);
+        super(sNomeImagemPng, false);
         this.chave = chave;
     }
 

@@ -4,6 +4,7 @@ import Modelo.*;
 import Auxiliar.Consts;
 import Auxiliar.Desenho;
 import Auxiliar.Posicao;
+
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -45,15 +46,18 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
 
         this.addKeyListener(this);
         /*teclado*/
- /*Cria a janela do tamanho do tabuleiro + insets (bordas) da janela*/
+        /*Cria a janela do tamanho do tabuleiro + insets (bordas) da janela*/
         this.setSize(Consts.RES * Consts.CELL_SIDE + getInsets().left + getInsets().right,
                 Consts.RES * Consts.CELL_SIDE + getInsets().top + getInsets().bottom);
+
+        if (this.carregar()) {
+            return;
+        }
 
         faseAtual = new ArrayList<Personagem>();
 
         /*Cria faseAtual adiciona personagens*/
-        hero = new Hero("Kratos_dir.png");
-        hero.setImagem("Kratos_dir.png"); // Sem isso, ao atirar sem andar no jogo, o getImagem() retornará null. Só conseguiria atirar após se mover, pois atribui o kratos_dir ou kratos_esq
+        hero = new Hero("Kratos.png");
         hero.setPosicao(1, 8);
         this.addPersonagem(hero);
         this.atualizaCamera();
@@ -69,11 +73,11 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
         BichinhoVaiVemHorizontal bBichinhoH2 = new BichinhoVaiVemHorizontal("Inimigo_Terra.png");
         bBichinhoH2.setPosicao(6, 6);
         this.addPersonagem(bBichinhoH2);
-        
+
         BichinhoVaiVemVertical bVv = new BichinhoVaiVemVertical("Inimigo_Terra.png");
         bVv.setPosicao(10, 10);
-        this.addPersonagem(bVv);        
-        
+        this.addPersonagem(bVv);
+
         Caveira bV = new Caveira("Deus_Terra.png");
         bV.setPosicao(9, 1);
         this.addPersonagem(bV);
@@ -81,7 +85,7 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
         Chave c = new Chave("Chave.png");
         c.setPosicao(5, 5);
         this.addPersonagem(c);
-        
+
         Portao p = new Portao("Portao.png", "chave");
         p.setPosicao(28, 8);
         this.addPersonagem(p);
@@ -90,8 +94,8 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
         chase.setPosicao(12, 12);
         this.addPersonagem(chase);
 
-         // Parede no topo e base
-        for (int col = 0; col < 17; col++) { // por que n acha o MUNDO_LARGURA de consts? Estou usando 16 mesmo
+        // Parede no topo e base
+        for (int col = 0; col < Consts.MUNDO_LARGURA; col++) {
             Parede paredeTopo = new Parede("Parede_Terra.png");
             paredeTopo.setPosicao(0, col);
             this.addPersonagem(paredeTopo);
@@ -99,19 +103,19 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
             Parede paredeBase = new Parede("Parede_Terra.png");
             paredeBase.setPosicao(29, col);
             this.addPersonagem(paredeBase);
-        }       
+        }
 
         // Parede nas laterais esquerda e direita
-        for (int l = 1; l < 30; l++) { // por que n acha o MUNDO_ALTURA de consts? Estou usando 30 mesmo
+        for (int l = 1; l < Consts.MUNDO_ALTURA; l++) {
             Parede paredeEsquerda = new Parede("Parede_Terra.png");
             paredeEsquerda.setPosicao(l, 0);
             this.addPersonagem(paredeEsquerda);
-        
+
             Parede paredeDireita = new Parede("Parede_Terra.png");
             paredeDireita.setPosicao(l, 16);
             this.addPersonagem(paredeDireita);
         }
-        
+
     }
 
     public int getCameraLinha() {
@@ -194,21 +198,29 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
     }
 
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_C) {
-            this.faseAtual.clear();
-        } else if (e.getKeyCode() == KeyEvent.VK_UP) {
-            hero.moveUp();
-        } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-            hero.moveDown();
-        } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-            hero.moveLeft();
-            hero.setImagem("Kratos_esq.png"); // kratos olhando pra esquerda
-        } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            hero.moveRight();
-            hero.setImagem("Kratos_dir.png"); // kratos olhando pra direita
-        } else if (e.getKeyCode() == KeyEvent.VK_SPACE) { // atira com a barra de espaço
-           hero.atiraFogo();
-
+        int keyCode = e.getKeyCode();
+        switch (keyCode) {
+            case (KeyEvent.VK_C):
+                this.faseAtual.clear();
+                break;
+            case (KeyEvent.VK_UP):
+                hero.moveUp();
+                break;
+            case (KeyEvent.VK_DOWN):
+                hero.moveDown();
+                break;
+            case (KeyEvent.VK_LEFT):
+                hero.moveLeft();
+                break;
+            case (KeyEvent.VK_RIGHT):
+                hero.moveRight();
+                break;
+            case (KeyEvent.VK_SPACE):
+                hero.atiraFogo();
+                break;
+            case (KeyEvent.VK_S):
+                this.salvar();
+                break;
         }
 
         this.atualizaCamera();
@@ -216,6 +228,24 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
                 + (hero.getPosicao().getLinha()));
 
         //repaint(); /*invoca o paint imediatamente, sem aguardar o refresh*/
+    }
+
+    private boolean carregar() {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("save.ser"))) {
+            this.faseAtual = (ArrayList<Personagem>) ois.readObject();
+            this.hero = (Hero)this.faseAtual.getFirst();
+            return true;
+        } catch (IOException | ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    private void salvar() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("save.ser"))) {
+            oos.writeObject(this.faseAtual);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void mousePressed(MouseEvent e) {
@@ -244,12 +274,12 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 561, Short.MAX_VALUE)
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGap(0, 561, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 500, Short.MAX_VALUE)
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGap(0, 500, Short.MAX_VALUE)
         );
 
         pack();
