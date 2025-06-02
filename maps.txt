@@ -1,0 +1,473 @@
+package Controler;
+
+import Modelo.*;
+import Auxiliar.Consts;
+import Auxiliar.Desenho;
+import Auxiliar.Posicao;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+import javax.swing.JButton;
+
+public class Tela extends javax.swing.JFrame implements MouseListener, KeyListener {
+
+    private Hero hero;
+    private ArrayList<Personagem> faseAtual;
+    private ControleDeJogo cj = new ControleDeJogo();
+    private Graphics g2;
+    private int cameraLinha = 0;
+    private int cameraColuna = 0;
+    private int faseAtualNumero = 1; // Controle da fase atual
+
+    public Tela() {
+        Desenho.setCenario(this);
+        initComponents();
+        this.addMouseListener(this);
+        /*mouse*/
+
+        this.addKeyListener(this);
+        /*teclado*/
+ /*Cria a janela do tamanho do tabuleiro + insets (bordas) da janela*/
+        this.setSize(Consts.RES * Consts.CELL_SIDE + getInsets().left + getInsets().right,
+                Consts.RES * Consts.CELL_SIDE + getInsets().top + getInsets().bottom);
+
+        faseAtual = new ArrayList<Personagem>();
+
+        // Inicializa com a primeira fase
+        carregarFase(1);
+    }
+
+    private void carregarFase(int numeroFase) {
+        // Limpa a fase atual
+        faseAtual.clear();
+
+        // Cria o herói
+        hero = new Hero("Kratos_dir.png");
+        hero.setPosicao(1, 8);
+        this.addPersonagem(hero);
+        this.atualizaCamera();
+
+        // Paredes externas (comum a todas as fases)
+        criarParedesExternas();
+
+        // Carrega a fase específica
+        switch (numeroFase) {
+            case 1:
+                carregarFase1();
+                break;
+            case 2:
+                carregarFase2();
+                break;
+            case 3:
+                carregarFase3();
+                break;
+        }
+
+        faseAtualNumero = numeroFase;
+    }
+
+    private void criarParedesExternas() {
+        // Paredes superior e inferior
+        for (int col = 0; col < 17; col++) {
+            Parede paredeTopo = new Parede("Parede_Terra.png");
+            paredeTopo.setPosicao(0, col);
+            this.addPersonagem(paredeTopo);
+
+            Parede paredeBase = new Parede("Parede_Terra.png");
+            paredeBase.setPosicao(29, col);
+            this.addPersonagem(paredeBase);
+        }
+
+        // Paredes laterais
+        for (int linha = 1; linha < 29; linha++) {
+            Parede paredeEsquerda = new Parede("Parede_Terra.png");
+            paredeEsquerda.setPosicao(linha, 0);
+            this.addPersonagem(paredeEsquerda);
+
+            Parede paredeDireita = new Parede("Parede_Terra.png");
+            paredeDireita.setPosicao(linha, 16);
+            this.addPersonagem(paredeDireita);
+        }
+    }
+
+    private void carregarFase1() {
+        // Layout da primeira fase - Labirinto Complexo em Espiral
+        int[][] paredesInternas = {
+            // Espiral principal
+            {3,3}, {3,4}, {3,5}, {3,6}, {3,7}, {3,8}, {3,9}, {3,10}, {3,11}, {3,12}, {3,13},
+            {4,3}, {5,3}, {6,3}, {7,3}, {8,3}, {9,3}, {10,3}, {11,3}, {12,3},
+            {12,4}, {12,5}, {12,6}, {12,7}, {12,8}, {12,9}, {12,10}, {12,11},
+            {6,11}, {7,11}, {8,11}, {9,11}, {10,11}, {11,11},
+            {6,5}, {6,6}, {6,7}, {6,8}, {6,9}, {6,10},
+            {7,5}, {8,5}, {9,5},
+            {9,6}, {9,7}, {9,8}, {9,9},
+
+            // Área central complexa
+            {14,7}, {14,8}, {14,9},
+            {15,7}, {15,9},
+            {16,7}, {16,8}, {16,9},
+            {13,8}, {17,8},
+
+            // Seção inferior direita
+            {18,3}, {18,4}, {18,5}, {18,6}, {18,7}, {18,8}, {18,9}, {18,10}, {18,11},
+            {19,3}, {20,3}, {21,3}, {22,3}, {23,3}, {24,3}, {25,3},
+            {25,4}, {25,5}, {25,6}, {25,7}, {25,8}, {25,9}, {25,10}, {25,11},
+            {19,11}, {20,11}, {21,11}, {22,11}, {23,11}, {24,11},
+            {21,5}, {21,6}, {21,7}, {21,8}, {21,9},
+            {22,5}, {23,5}, {24,5},
+
+            // Corredores extras
+            {15,4}, {15,5}, {15,12}, {15,13},
+            {16,4}, {16,12},
+            {17,4}, {17,12},
+            {14,4}, {14,12},
+            {13,4}, {13,12},
+
+            // Salas extras
+            {4,7}, {4,8}, {4,9},
+            {5,7}, {5,9},
+            {23,7}, {23,8}, {23,9},
+            {24,7}, {24,9}
+        };
+
+        for (int[] pos : paredesInternas) {
+            Parede parede = new Parede("Parede_Terra.png");
+            parede.setPosicao(pos[0], pos[1]);
+            this.addPersonagem(parede);
+        }
+    }
+
+    private void carregarFase2() {
+        // Layout da segunda fase - Câmaras Interconectadas
+        int[][] paredesInternas = {
+            // Hub central expandido
+            {13,6}, {13,7}, {13,8}, {13,9}, {13,10},
+            {14,6}, {14,10},
+            {15,6}, {15,10},
+            {16,6}, {16,10},
+            {17,6}, {17,7}, {17,8}, {17,9}, {17,10},
+            {14,7}, {14,9},
+            {16,7}, {16,9},
+            {15,8},
+
+            // Câmaras superiores
+            {4,3}, {4,4}, {4,5}, {4,6}, {4,7},
+            {5,3}, {6,3}, {7,3},
+            {7,4}, {7,5}, {7,6},
+            {5,7}, {6,7}, {7,7},
+            {9,3}, {9,4}, {9,5}, {9,6}, {9,7},
+            {10,3}, {11,3}, {12,3},
+            {12,4}, {12,5}, {12,6},
+            {10,7}, {11,7},
+
+            // Câmaras inferiores
+            {20,9}, {20,10}, {20,11}, {20,12}, {20,13},
+            {21,13}, {22,13}, {23,13},
+            {23,12}, {23,11}, {23,10},
+            {21,9}, {22,9}, {23,9},
+            {25,9}, {25,10}, {25,11}, {25,12}, {25,13},
+            {18,13}, {19,13},
+            {18,12}, {18,11}, {18,10},
+            {18,9}, {19,9},
+
+            // Corredores laterais
+            {3,9}, {4,9}, {5,9}, {6,9}, {7,9}, {8,9}, {9,9}, {10,9}, {11,9}, {12,9},
+            {18,7}, {19,7}, {20,7}, {21,7}, {22,7}, {23,7}, {24,7}, {25,7}, {26,7},
+
+            // Salas extras
+            {6,11}, {6,12}, {6,13},
+            {7,11}, {7,13},
+            {8,11}, {8,12}, {8,13},
+            {21,3}, {21,4}, {21,5},
+            {22,3}, {22,5},
+            {23,3}, {23,4}, {23,5}
+        };
+
+        for (int[] pos : paredesInternas) {
+            Parede parede = new Parede("Parede_Terra.png");
+            parede.setPosicao(pos[0], pos[1]);
+            this.addPersonagem(parede);
+        }
+    }
+
+    private void carregarFase3() {
+        // Layout da terceira fase - Mega Arena com Labirinto
+        int[][] paredesInternas = {
+            // Arena central expandida
+            {12,5}, {12,6}, {12,7}, {12,8}, {12,9}, {12,10}, {12,11},
+            {13,5}, {13,11},
+            {14,5}, {14,11},
+            {15,5}, {15,11},
+            {16,5}, {16,11},
+            {17,5}, {17,11},
+            {18,5}, {18,6}, {18,7}, {18,8}, {18,9}, {18,10}, {18,11},
+            {14,7}, {14,9},
+            {16,7}, {16,9},
+            {15,8},
+            {13,8}, {17,8},
+
+            // Labirinto superior complexo
+            {4,3}, {4,4}, {4,5}, {5,5}, {6,5},
+            {6,3}, {7,3}, {8,3}, {9,3},
+            {9,4}, {9,5}, {9,6}, {9,7},
+            {7,7}, {8,7},
+            {6,7}, {6,8}, {6,9},
+            {4,9}, {5,9},
+            {8,9}, {9,9}, {10,9},
+            {10,3}, {10,4}, {10,5},
+
+            // Labirinto inferior complexo
+            {20,9}, {20,10}, {20,11},
+            {21,11}, {22,11}, {23,11},
+            {23,9}, {23,10},
+            {21,9}, {21,8}, {21,7},
+            {23,7}, {24,7}, {25,7},
+            {25,8}, {25,9}, {25,10}, {25,11},
+            {20,13}, {21,13}, {22,13}, {23,13}, {24,13}, {25,13},
+
+            // Salas dos tesouros expandidas
+            {4,11}, {4,12}, {4,13},
+            {5,11}, {5,13},
+            {6,11}, {6,12}, {6,13},
+            {7,11}, {7,13},
+            {8,11}, {8,12}, {8,13},
+
+            {20,3}, {20,4}, {20,5},
+            {21,3}, {21,5},
+            {22,3}, {22,4}, {22,5},
+            {23,3}, {23,5},
+            {24,3}, {24,4}, {24,5},
+
+            // Corredores extras
+            {11,3}, {12,3}, {13,3}, {14,3}, {15,3}, {16,3}, {17,3}, {18,3}, {19,3},
+            {11,13}, {12,13}, {13,13}, {14,13}, {15,13}, {16,13}, {17,13}, {18,13}, {19,13}
+        };
+
+        for (int[] pos : paredesInternas) {
+            Parede parede = new Parede("Parede_Terra.png");
+            parede.setPosicao(pos[0], pos[1]);
+            this.addPersonagem(parede);
+        }
+    }
+
+    public int getCameraLinha() {
+        return cameraLinha;
+    }
+
+    public int getCameraColuna() {
+        return cameraColuna;
+    }
+
+    public boolean ehPosicaoValida(Posicao p) {
+        return cj.ehPosicaoValida(this.faseAtual, p);
+    }
+
+    public void addPersonagem(Personagem umPersonagem) {
+        faseAtual.add(umPersonagem);
+    }
+
+    public void removePersonagem(Personagem umPersonagem) {
+        faseAtual.remove(umPersonagem);
+    }
+
+    public Graphics getGraphicsBuffer() {
+        return g2;
+    }
+
+    public void paint(Graphics gOld) {
+        Graphics g = this.getBufferStrategy().getDrawGraphics();
+        /*Criamos um contexto gráfico*/
+        g2 = g.create(getInsets().left, getInsets().top, getWidth() - getInsets().right, getHeight() - getInsets().top);
+        /**
+         * ***********Desenha cenário de fundo*************
+         */
+        for (int i = 0; i < Consts.RES; i++) {
+            for (int j = 0; j < Consts.RES; j++) {
+                int mapaLinha = cameraLinha + i;
+                int mapaColuna = cameraColuna + j;
+
+                if (mapaLinha < Consts.MUNDO_ALTURA && mapaColuna < Consts.MUNDO_LARGURA) {
+                    try {
+                        Image newImage = Toolkit.getDefaultToolkit().getImage(
+                                new java.io.File(".").getCanonicalPath() + Consts.PATH + "greenTile.png");
+                        g2.drawImage(newImage,
+                                j * Consts.CELL_SIDE, i * Consts.CELL_SIDE,
+                                Consts.CELL_SIDE, Consts.CELL_SIDE, null);
+                    } catch (IOException ex) {
+                        Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        }
+        if (!this.faseAtual.isEmpty()) {
+            this.cj.desenhaTudo(faseAtual);
+            this.cj.processaTudo(faseAtual);
+        }
+
+        g.dispose();
+        g2.dispose();
+        if (!getBufferStrategy().contentsLost()) {
+            getBufferStrategy().show();
+        }
+    }
+
+    private void atualizaCamera() {
+        int linha = hero.getPosicao().getLinha();
+        int coluna = hero.getPosicao().getColuna();
+
+        cameraLinha = Math.max(0, Math.min(linha - Consts.RES / 2, Consts.MUNDO_ALTURA - Consts.RES));
+        cameraColuna = Math.max(0, Math.min(coluna - Consts.RES / 2, Consts.MUNDO_LARGURA - Consts.RES));
+    }
+
+    public void go() {
+        TimerTask task = new TimerTask() {
+            public void run() {
+                repaint();
+            }
+        };
+        Timer timer = new Timer();
+        timer.schedule(task, 0, Consts.PERIOD);
+    }
+
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_C) {
+            this.faseAtual.clear();
+        } else if (e.getKeyCode() == KeyEvent.VK_UP) {
+            hero.moveUp();
+            verificarMudancaFase();
+        } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+            hero.moveDown();
+            verificarMudancaFase();
+        } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+            hero.moveLeft();
+            verificarMudancaFase();
+        } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            hero.moveRight();
+            verificarMudancaFase();
+        } else if (e.getKeyCode() == KeyEvent.VK_1) {
+            carregarFase(1);
+        } else if (e.getKeyCode() == KeyEvent.VK_2) {
+            carregarFase(2);
+        } else if (e.getKeyCode() == KeyEvent.VK_3) {
+            carregarFase(3);
+        }
+
+        this.atualizaCamera();
+        this.setTitle("Fase " + faseAtualNumero + " -> Cell: " + (hero.getPosicao().getColuna()) + ", "
+                + (hero.getPosicao().getLinha()));
+    }
+
+    private void verificarMudancaFase() {
+        int linha = hero.getPosicao().getLinha();
+        int coluna = hero.getPosicao().getColuna();
+
+        // Pontos de transição para cada fase
+        switch (faseAtualNumero) {
+            case 1:
+                // Se chegar no final da fase 1 (canto inferior direito)
+                if (linha >= 27 && coluna >= 14) {
+                    carregarFase(2);
+                    // Posiciona o herói no início da fase 2
+                    hero.setPosicao(1, 8);
+                }
+                break;
+            case 2:
+                // Se chegar no final da fase 2 (canto inferior direito)
+                if (linha >= 27 && coluna >= 14) {
+                    carregarFase(3);
+                    // Posiciona o herói no início da fase 3
+                    hero.setPosicao(1, 8);
+                }
+                break;
+            case 3:
+                // Se chegar no final da fase 3 (canto inferior direito)
+                if (linha >= 27 && coluna >= 14) {
+                    carregarFase(1);
+                    // Posiciona o herói no início da fase 1
+                    hero.setPosicao(1, 8);
+                }
+                break;
+        }
+    }
+
+    public void mousePressed(MouseEvent e) {
+        /* Clique do mouse desligado*/
+        int x = e.getX();
+        int y = e.getY();
+
+        this.setTitle("X: " + x + ", Y: " + y
+                + " -> Cell: " + (y / Consts.CELL_SIDE) + ", " + (x / Consts.CELL_SIDE));
+
+        this.hero.getPosicao().setPosicao(y / Consts.CELL_SIDE, x / Consts.CELL_SIDE);
+
+        repaint();
+    }
+
+
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("POO2023-1 - Skooter");
+        setAlwaysOnTop(true);
+        setAutoRequestFocus(false);
+        setResizable(false);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 561, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 500, Short.MAX_VALUE)
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    // End of variables declaration//GEN-END:variables
+
+    public void mouseMoved(MouseEvent e) {
+    }
+
+    public void mouseClicked(MouseEvent e) {
+    }
+
+    public void mouseReleased(MouseEvent e) {
+    }
+
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    public void mouseExited(MouseEvent e) {
+    }
+
+    public void mouseDragged(MouseEvent e) {
+    }
+
+    public void keyTyped(KeyEvent e) {
+    }
+
+    public void keyReleased(KeyEvent e) {
+    }
+}

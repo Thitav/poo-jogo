@@ -31,7 +31,7 @@ import javax.swing.JButton;
 public class Tela extends javax.swing.JFrame implements MouseListener, KeyListener {
 
     private Hero hero;
-    private ArrayList<Personagem> faseAtual;
+    private Fase faseAtual;
     private ControleDeJogo cj = new ControleDeJogo();
     private Graphics g2;
     private int cameraLinha = 0;
@@ -42,7 +42,6 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
         Desenho.setCenario(this);
         initComponents();
         this.addMouseListener(this);
-        /*mouse*/
 
         this.addKeyListener(this);
         /*teclado*/
@@ -50,72 +49,17 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
         this.setSize(Consts.RES * Consts.CELL_SIDE + getInsets().left + getInsets().right,
                 Consts.RES * Consts.CELL_SIDE + getInsets().top + getInsets().bottom);
 
-        if (this.carregar()) {
-            return;
-        }
 
-        faseAtual = new ArrayList<Personagem>();
+    }
 
-        /*Cria faseAtual adiciona personagens*/
-        hero = new Hero("Kratos.png");
-        hero.setPosicao(1, 8);
-        this.addPersonagem(hero);
-        this.atualizaCamera();
+    public Fase getFaseAtual() {
+        return faseAtual;
+    }
 
-        ZigueZague zz = new ZigueZague("Tiro_Ceu.png");
-        zz.setPosicao(5, 5);
-        this.addPersonagem(zz);
-
-        BichinhoVaiVemHorizontal bBichinhoH = new BichinhoVaiVemHorizontal("Inimigo_Terra.png");
-        bBichinhoH.setPosicao(3, 3);
-        this.addPersonagem(bBichinhoH);
-
-        BichinhoVaiVemHorizontal bBichinhoH2 = new BichinhoVaiVemHorizontal("Inimigo_Terra.png");
-        bBichinhoH2.setPosicao(6, 6);
-        this.addPersonagem(bBichinhoH2);
-
-        BichinhoVaiVemVertical bVv = new BichinhoVaiVemVertical("Inimigo_Terra.png");
-        bVv.setPosicao(10, 10);
-        this.addPersonagem(bVv);
-
-        Caveira bV = new Caveira("Deus_Terra.png");
-        bV.setPosicao(9, 1);
-        this.addPersonagem(bV);
-
-        Chave c = new Chave("Chave.png");
-        c.setPosicao(5, 5);
-        this.addPersonagem(c);
-
-        Portao p = new Portao("Portao.png", "chave");
-        p.setPosicao(28, 8);
-        this.addPersonagem(p);
-
-        Chaser chase = new Chaser("Tiro_Lava.png");
-        chase.setPosicao(12, 12);
-        this.addPersonagem(chase);
-
-        // Parede no topo e base
-        for (int col = 0; col < Consts.MUNDO_LARGURA; col++) {
-            Parede paredeTopo = new Parede("Parede_Terra.png");
-            paredeTopo.setPosicao(0, col);
-            this.addPersonagem(paredeTopo);
-
-            Parede paredeBase = new Parede("Parede_Terra.png");
-            paredeBase.setPosicao(29, col);
-            this.addPersonagem(paredeBase);
-        }
-
-        // Parede nas laterais esquerda e direita
-        for (int l = 1; l < Consts.MUNDO_ALTURA; l++) {
-            Parede paredeEsquerda = new Parede("Parede_Terra.png");
-            paredeEsquerda.setPosicao(l, 0);
-            this.addPersonagem(paredeEsquerda);
-
-            Parede paredeDireita = new Parede("Parede_Terra.png");
-            paredeDireita.setPosicao(l, 16);
-            this.addPersonagem(paredeDireita);
-        }
-
+    public void setFaseAtual(Fase faseAtual) {
+        this.faseAtual = faseAtual;
+        faseAtual.construir();
+        this.hero = faseAtual.getHero();
     }
 
     public int getCameraLinha() {
@@ -124,18 +68,6 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
 
     public int getCameraColuna() {
         return cameraColuna;
-    }
-
-    public boolean ehPosicaoValida(Posicao p) {
-        return cj.ehPosicaoValida(this.faseAtual, p);
-    }
-
-    public void addPersonagem(Personagem umPersonagem) {
-        faseAtual.add(umPersonagem);
-    }
-
-    public void removePersonagem(Personagem umPersonagem) {
-        faseAtual.remove(umPersonagem);
     }
 
     public Graphics getGraphicsBuffer() {
@@ -167,9 +99,10 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
                 }
             }
         }
-        if (!this.faseAtual.isEmpty()) {
-            this.cj.desenhaTudo(faseAtual);
-            this.cj.processaTudo(faseAtual);
+        if (this.faseAtual != null) {
+            ArrayList<Personagem> personagens = this.faseAtual.getPersonagens();
+            this.cj.desenhaTudo(personagens);
+            this.cj.processaTudo(personagens);
         }
 
         g.dispose();
@@ -201,7 +134,7 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
         int keyCode = e.getKeyCode();
         switch (keyCode) {
             case (KeyEvent.VK_C):
-                this.faseAtual.clear();
+                this.faseAtual.limpar();
                 break;
             case (KeyEvent.VK_UP):
                 hero.moveUp();
@@ -219,7 +152,7 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
                 hero.atiraFogo();
                 break;
             case (KeyEvent.VK_S):
-                this.salvar();
+                this.faseAtual.salvar();
                 break;
         }
 
@@ -230,23 +163,7 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
         //repaint(); /*invoca o paint imediatamente, sem aguardar o refresh*/
     }
 
-    private boolean carregar() {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("save.ser"))) {
-            this.faseAtual = (ArrayList<Personagem>) ois.readObject();
-            this.hero = (Hero)this.faseAtual.getFirst();
-            return true;
-        } catch (IOException | ClassNotFoundException e) {
-            return false;
-        }
-    }
 
-    private void salvar() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("save.ser"))) {
-            oos.writeObject(this.faseAtual);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     public void mousePressed(MouseEvent e) {
         /* Clique do mouse desligado*/

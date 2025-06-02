@@ -29,7 +29,7 @@ public class Hero extends Personagem implements Serializable{
     
     public boolean setPosicao(int linha, int coluna) {
         if(this.pPosicao.setPosicao(linha, coluna)){
-            if (!Desenho.acessoATelaDoJogo().ehPosicaoValida(this.getPosicao())) {
+            if (!Desenho.acessoAFase().ehPosicaoValida(this.getPosicao())) {
                 this.voltaAUltimaPosicao();
             }
             return true;
@@ -39,7 +39,7 @@ public class Hero extends Personagem implements Serializable{
 
     /*TO-DO: este metodo pode ser interessante a todos os personagens que se movem*/
     private boolean validaPosicao(){
-        if (!Desenho.acessoATelaDoJogo().ehPosicaoValida(this.getPosicao())) {
+        if (!Desenho.acessoAFase().ehPosicaoValida(this.getPosicao())) {
             this.voltaAUltimaPosicao();
             return false;
         }
@@ -82,6 +82,6 @@ public class Hero extends Personagem implements Serializable{
             tiro = new Fogo("Tiro_Lava.png", Direcao.ESQUERDA);
             tiro.setPosicao(pPosicao.getLinha(), pPosicao.getColuna() - 1);
         }
-        Desenho.acessoATelaDoJogo().addPersonagem(tiro);
+        Desenho.acessoAFase().addPersonagem(tiro);
     }
 }

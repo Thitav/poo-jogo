@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import java.io.Serializable;
 import javax.swing.ImageIcon;
 import Controler.Tela;
+import Modelo.Fase;
 
 public class Desenho implements Serializable {
 
@@ -13,8 +14,8 @@ public class Desenho implements Serializable {
         jCenario = umJCenario;
     }
 
-    public static Tela acessoATelaDoJogo() {
-        return jCenario;
+    public static Fase acessoAFase() {
+        return jCenario.getFaseAtual();
     }
 
     public static Graphics getGraphicsDaTela() {

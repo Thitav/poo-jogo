@@ -20,11 +20,11 @@ public class Fogo extends Personagem implements Serializable{
         Direcao direcao = this.getDirecao();
         if (direcao == Direcao.DIREITA) { // faz andar pra direita
             if (!this.moveRight()) {
-                Desenho.acessoATelaDoJogo().removePersonagem(this);
+                Desenho.acessoAFase().removePersonagem(this);
             }
         } else if (direcao == Direcao.ESQUERDA) { // faz andar pra esquerda (n está funcionando)
             if (!this.moveLeft()) {
-                Desenho.acessoATelaDoJogo().removePersonagem(this);
+                Desenho.acessoAFase().removePersonagem(this);
             }
         }
     }

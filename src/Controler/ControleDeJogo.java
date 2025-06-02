@@ -38,18 +38,4 @@ public class ControleDeJogo {
             }
         }
     }
-
-    /*Retorna true se a posicao p é válida para Hero com relacao a todos os personagens no array*/
-    public boolean ehPosicaoValida(ArrayList<Personagem> umaFase, Posicao p) {
-        Personagem pIesimoPersonagem;
-        for (int i = 1; i < umaFase.size(); i++) {
-            pIesimoPersonagem = umaFase.get(i);
-            if (!pIesimoPersonagem.isbTransponivel()) {
-                if (pIesimoPersonagem.getPosicao().igual(p)) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
 }
