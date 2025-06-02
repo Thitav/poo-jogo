@@ -72,16 +72,27 @@ public class Hero extends Personagem implements Serializable{
         return false;
     }
 
-    public void atiraFogo(){ // Metodo pro heroi atirar fogo
-        Fogo tiro;
+    public void atiraCima() {
+        Fogo tiro = new Fogo("Tiro_Lava.png", Direcao.DIREITA);
+        tiro.moveUp();
+        Desenho.acessoAFase().addPersonagem(tiro);
+    }
 
-        if (this.direcao == Direcao.DIREITA) {
-            tiro = new Fogo("Tiro_Lava.png", Direcao.DIREITA);
-            tiro.setPosicao(pPosicao.getLinha(), pPosicao.getColuna() + 1);
-        } else {
-            tiro = new Fogo("Tiro_Lava.png", Direcao.ESQUERDA);
-            tiro.setPosicao(pPosicao.getLinha(), pPosicao.getColuna() - 1);
-        }
+    public void atiraBaixo() {
+        Fogo tiro = new Fogo("Tiro_Lava.png", Direcao.DIREITA);
+        tiro.moveDown();
+        Desenho.acessoAFase().addPersonagem(tiro);
+    }
+
+    public void atiraEsquerda() {
+        Fogo tiro = new Fogo("Tiro_Lava.png", Direcao.ESQUERDA);
+        tiro.moveLeft();
+        Desenho.acessoAFase().addPersonagem(tiro);
+    }
+
+    public void atiraDireita() {
+        Fogo tiro = new Fogo("Tiro_Lava.png", Direcao.DIREITA);
+        tiro.moveRight();
         Desenho.acessoAFase().addPersonagem(tiro);
     }
 }

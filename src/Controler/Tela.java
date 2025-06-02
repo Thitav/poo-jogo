@@ -148,10 +148,19 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
             case (KeyEvent.VK_RIGHT):
                 hero.moveRight();
                 break;
-            case (KeyEvent.VK_SPACE):
-                hero.atiraFogo();
+            case (KeyEvent.VK_W):
+                hero.atiraCima();
                 break;
             case (KeyEvent.VK_S):
+                hero.atiraBaixo();
+                break;
+            case (KeyEvent.VK_A):
+                hero.atiraEsquerda();
+                break;
+            case (KeyEvent.VK_D):
+                hero.atiraDireita();
+                break;
+            case (KeyEvent.VK_P):
                 this.faseAtual.salvar();
                 break;
         }
