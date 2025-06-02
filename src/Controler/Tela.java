@@ -36,7 +36,6 @@ public class Tela extends javax.swing.JFrame implements MouseListener, KeyListen
     private Graphics g2;
     private int cameraLinha = 0;
     private int cameraColuna = 0;
-    private int iContaIntervalos = 0; // testar se funciona sem isso
 
     public Tela() {
         Desenho.setCenario(this);
